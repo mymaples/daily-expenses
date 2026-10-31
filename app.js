@@ -53,6 +53,7 @@ function parseAmount(v) {
   const n = Number(String(v).replace(/,/g, "").trim());
   return Number.isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : null;
 }
+function pctLabel(pct) { return pct > 0 && pct < 1 ? "<1%" : Math.round(pct) + "%"; }
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -176,7 +177,7 @@ async function refreshMonth() {
     const fill = el("div", "fill");
     fill.style.width = (v / max * 100) + "%";
     track.append(fill);
-    row.append(el("span", "name", c), track, el("span", "val", `${money.format(v)} · ${Math.round(v / total * 100)}%`));
+    row.append(el("span", "name", c), track, el("span", "val", `${money.format(v)} · ${pctLabel(v / total * 100)}`));
     return row;
   }) : [el("p", "empty", "No expenses this month.")]));
 

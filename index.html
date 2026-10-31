@@ -17,10 +17,11 @@
   <!-- Sign-in -->
   <section id="signin" class="signin" hidden>
     <h1>Daily Expenses</h1>
-    <form id="signin-form">
+    <form id="signin-form" class="card">
       <label for="email">Email</label>
       <input id="email" type="email" autocomplete="username" required placeholder="you@example.com">
       <button type="submit" class="btn primary">Email me a sign-in link</button>
+      <p class="or"><span>or</span></p>
       <label for="password">Password <span class="muted">(if you've set one in Settings)</span></label>
       <input id="password" type="password" autocomplete="current-password">
       <button type="button" id="password-signin" class="btn">Sign in with password</button>
@@ -35,7 +36,10 @@
       <section id="view-add" class="view">
         <header class="top">
           <div class="title-row"><h1>Daily Expenses</h1><span id="add-month" class="muted"></span></div>
-          <p class="muted">Today <strong id="today-total">–</strong> · Month <strong id="month-total">–</strong></p>
+          <div class="totals">
+            <div class="tile"><span>Today</span><strong id="today-total">–</strong></div>
+            <div class="tile"><span>This month</span><strong id="month-total">–</strong></div>
+          </div>
         </header>
         <form id="add-form" class="card">
           <div class="amount-row">
@@ -44,10 +48,12 @@
           </div>
           <p class="label">Category</p>
           <div id="add-cats" class="chips"></div>
-          <label for="add-note" class="label">Note</label>
-          <input id="add-note" placeholder="optional" autocomplete="off">
-          <label for="add-date" class="label">Date</label>
-          <input id="add-date" type="date">
+          <div class="field-row">
+            <div><label for="add-note" class="label">Note</label>
+              <input id="add-note" placeholder="optional" autocomplete="off"></div>
+            <div><label for="add-date" class="label">Date</label>
+              <input id="add-date" type="date"></div>
+          </div>
           <button type="submit" class="btn primary big">Save</button>
         </form>
         <h2>Recent today</h2>
@@ -100,10 +106,12 @@
             <button class="btn primary">Set</button>
           </div>
         </form>
-        <div class="card">
-          <button id="export" class="btn">Download backup (CSV)</button>
+        <div class="card account">
           <p class="muted">Signed in as <span id="who"></span></p>
-          <button id="signout" class="btn danger">Sign out</button>
+          <div class="inline">
+            <button id="export" class="btn">Download backup (CSV)</button>
+            <button id="signout" class="btn danger">Sign out</button>
+          </div>
         </div>
       </section>
     </main>
@@ -123,11 +131,14 @@
         <span class="cur">RM</span>
         <input id="edit-amount" class="amount" inputmode="decimal" aria-label="Amount">
       </div>
+      <p class="label">Category</p>
       <div id="edit-cats" class="chips"></div>
-      <label for="edit-note" class="label">Note</label>
-      <input id="edit-note">
-      <label for="edit-date" class="label">Date</label>
-      <input id="edit-date" type="date">
+      <div class="field-row">
+        <div><label for="edit-note" class="label">Note</label>
+          <input id="edit-note" placeholder="optional"></div>
+        <div><label for="edit-date" class="label">Date</label>
+          <input id="edit-date" type="date"></div>
+      </div>
       <div class="inline">
         <button type="button" id="edit-delete" class="btn danger">Delete</button>
         <button type="submit" class="btn primary">Save</button>
