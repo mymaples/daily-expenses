@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Daily Expenses</title>
+  <meta name="theme-color" content="#0f766e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Expenses">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sign-in -->
+  <section id="signin" class="signin" hidden>
+    <h1>Daily Expenses</h1>
+    <form id="email-form">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <button type="submit" class="btn primary">Send me a code</button>
+    </form>
+    <form id="code-form" hidden>
+      <label for="code">6-digit code from your email</label>
+      <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required>
+      <button type="submit" class="btn primary">Sign in</button>
+      <button type="button" id="code-back" class="btn link">Use a different email</button>
+    </form>
+    <p id="signin-msg" class="muted"></p>
+  </section>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <main>
+      <!-- Add -->
+      <section id="view-add" class="view">
+        <header class="top">
+          <div class="title-row"><h1>Daily Expenses</h1><span id="add-month" class="muted"></span></div>
+          <p class="muted">Today <strong id="today-total">–</strong> · Month <strong id="month-total">–</strong></p>
+        </header>
+        <form id="add-form" class="card">
+          <div class="amount-row">
+            <span class="cur">RM</span>
+            <input id="add-amount" class="amount" inputmode="decimal" placeholder="0.00" autocomplete="off" aria-label="Amount">
+          </div>
+          <p class="label">Category</p>
+          <div id="add-cats" class="chips"></div>
+          <label for="add-note" class="label">Note</label>
+          <input id="add-note" placeholder="optional" autocomplete="off">
+          <label for="add-date" class="label">Date</label>
+          <input id="add-date" type="date">
+          <button type="submit" class="btn primary big">Save</button>
+        </form>
+        <h2>Recent today</h2>
+        <ul id="today-list" class="entries"></ul>
+      </section>
+
+      <!-- Month -->
+      <section id="view-month" class="view" hidden>
+        <header class="month-nav">
+          <button id="prev-month" class="btn icon" aria-label="Previous month">‹</button>
+          <h1 id="month-label"></h1>
+          <button id="next-month" class="btn icon" aria-label="Next month">›</button>
+        </header>
+        <div class="card">
+          <div class="stat"><span>Spent</span><strong id="m-spent"></strong></div>
+          <div id="budget-block">
+            <div class="stat"><span>Budget</span><span id="m-budget"></span></div>
+            <div class="bar"><div id="m-bar"></div></div>
+            <p id="m-left" class="muted"></p>
+          </div>
+        </div>
+        <h2>By category</h2>
+        <div id="m-cats" class="card cat-bars"></div>
+        <h2>Entries</h2>
+        <div id="m-days"></div>
+      </section>
+
+      <!-- Settings -->
+      <section id="view-settings" class="view" hidden>
+        <header class="top"><h1>Settings</h1></header>
+        <form id="budget-form" class="card">
+          <label for="budget" class="label">Monthly budget (RM)</label>
+          <div class="inline">
+            <input id="budget" inputmode="decimal" placeholder="none">
+            <button class="btn primary">Save</button>
+          </div>
+        </form>
+        <div class="card">
+          <p class="label">Categories</p>
+          <ul id="cat-list" class="cat-list"></ul>
+          <form id="cat-form" class="inline">
+            <input id="new-cat" placeholder="New category" maxlength="30">
+            <button class="btn">Add</button>
+          </form>
+        </div>
+        <div class="card">
+          <button id="export" class="btn">Download backup (CSV)</button>
+          <p class="muted">Signed in as <span id="who"></span></p>
+          <button id="signout" class="btn danger">Sign out</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabs">
+      <button data-view="add" class="active">＋ Add</button>
+      <button data-view="month">Month</button>
+      <button data-view="settings">Settings</button>
+    </nav>
+  </div>
+
+  <!-- Edit sheet -->
+  <div id="sheet" class="sheet-backdrop" hidden>
+    <form id="edit-form" class="sheet">
+      <div class="title-row"><h2>Edit expense</h2><button type="button" id="edit-close" class="btn icon" aria-label="Close">✕</button></div>
+      <div class="amount-row">
+        <span class="cur">RM</span>
+        <input id="edit-amount" class="amount" inputmode="decimal" aria-label="Amount">
+      </div>
+      <div id="edit-cats" class="chips"></div>
+      <label for="edit-note" class="label">Note</label>
+      <input id="edit-note">
+      <label for="edit-date" class="label">Date</label>
+      <input id="edit-date" type="date">
+      <div class="inline">
+        <button type="button" id="edit-delete" class="btn danger">Delete</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
