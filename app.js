@@ -158,6 +158,10 @@ async function refreshMonth() {
   const total = rows.reduce((s, x) => s + x.amount, 0);
   $("m-spent").textContent = money.format(total);
 
+  const byCat = new Map();
+  for (const x of rows) byCat.set(x.category, (byCat.get(x.category) || 0) + x.amount);
+  const cats = [...byCat].sort((a, b) => b[1] - a[1]);
+
   const budget = state.settings.monthly_budget;
   $("budget-block").hidden = !budget;
   if (budget) {
@@ -166,6 +170,13 @@ async function refreshMonth() {
     const bar = $("m-bar");
     bar.style.width = Math.min(pct, 100) + "%";
     bar.className = pct > 100 ? "over" : pct >= 80 ? "warn" : "";
+    // One segment per category, biggest first, in the same colours as the bars below.
+    bar.replaceChildren(...cats.map(([c, v]) => {
+      const seg = tint(el("span"), c);
+      seg.style.width = (v / total * 100) + "%";
+      seg.title = `${c}: ${money.format(v)}`;
+      return seg;
+    }));
     const left = budget - total;
     let msg = left >= 0 ? `${money.format(left)} left (${Math.round(pct)}% used)` : `${money.format(-left)} over budget`;
     const now = new Date();
@@ -176,9 +187,6 @@ async function refreshMonth() {
     $("m-left").textContent = msg;
   }
 
-  const byCat = new Map();
-  for (const x of rows) byCat.set(x.category, (byCat.get(x.category) || 0) + x.amount);
-  const cats = [...byCat].sort((a, b) => b[1] - a[1]);
   const max = cats.length ? cats[0][1] : 0;
   $("m-cats").replaceChildren(...(cats.length ? cats.map(([c, v]) => {
     const row = el("div", "row");

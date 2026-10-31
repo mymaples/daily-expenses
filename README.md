@@ -7,7 +7,7 @@ Plain HTML/CSS/JS hosted on GitHub Pages; data is stored in Supabase so it syncs
 - **Sign-in**: email link, or email + password (if one is set in Settings).
 - **Add**: Today and This month totals as two tiles at the top, then amount, category, optional note and date
   (note and date sit side by side on wider screens, stacked on phones). Today's entries are listed below.
-- **Month**: spent vs. budget with a progress bar and the daily allowance left, a category breakdown
+- **Month**: spent vs. budget with a progress bar split into category colours (ringed amber from 80%, red when over) and the daily allowance left, a category breakdown
   (name and amount over a bar on one shared scale), and entries grouped by day. Tap an entry to edit or delete it
   in a bottom sheet; ‹ › changes month.
 - **Settings**: monthly budget, categories (add / rename / remove), password, and an account card with
@@ -16,7 +16,7 @@ Plain HTML/CSS/JS hosted on GitHub Pages; data is stored in Supabase so it syncs
 The bottom tab bar switches between Add, Month and Settings. The layout is built for phones and centres in a
 560px column on larger screens; it follows the system light/dark setting.
 
-Each category has its own light colour, used on its chips, entry labels, breakdown bar and a dot in Settings.
+Each category has its own light colour, used on its chips, entry labels, breakdown bar, its segment of the budget bar and a dot in Settings.
 Colours follow the category's position in the list (renaming keeps the colour, removing one shifts those below it);
 past entries with a removed category get a colour derived from the label. Dark mode uses darker tints.
 
