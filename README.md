@@ -4,9 +4,17 @@ A lightweight, mobile-first page for recording daily spending (RM) and reviewing
 Plain HTML/CSS/JS hosted on GitHub Pages; data is stored in Supabase so it syncs across devices.
 
 ## Screens
-- **Add**: amount, category, optional note and date. Today's and this month's totals at the top.
-- **Month**: spent vs. budget, category breakdown, entries by day (tap to edit/delete), ‹ › to change month.
-- **Settings**: monthly budget, categories, CSV backup, sign out.
+- **Sign-in**: email link, or email + password (if one is set in Settings).
+- **Add**: Today and This month totals as two tiles at the top, then amount, category, optional note and date
+  (note and date sit side by side on wider screens, stacked on phones). Today's entries are listed below.
+- **Month**: spent vs. budget with a progress bar and the daily allowance left, a category breakdown
+  (name and amount over a bar on one shared scale), and entries grouped by day. Tap an entry to edit or delete it
+  in a bottom sheet; ‹ › changes month.
+- **Settings**: monthly budget, categories (add / rename / remove), password, and an account card with
+  CSV backup and sign out.
+
+The bottom tab bar switches between Add, Month and Settings. The layout is built for phones and centres in a
+560px column on larger screens; it follows the system light/dark setting.
 
 ## Setup
 1. Create a Supabase project and run `supabase/schema.sql` in the SQL editor.

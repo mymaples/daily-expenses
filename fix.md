@@ -46,6 +46,25 @@ An automatic security check flagged four sign-in issues. Three are fixed (commit
 2. Set a temporary password on chris.goh@mymaples.com directly in the database and tested that it signs in.
 3. You signed in on your phone with the password. ✅
 
+## Problem 4: Date box ran over the edge of the Add card
+
+**Symptom:** On the phone, the **Date** box in the Add section stuck out past the right edge of the white card.
+
+**Cause:**
+- The layout update (commit `9d85d54`) put **Note** and **Date** side by side to make the form shorter, with Date in a fixed column 10.5em (about 168px) wide.
+- Phone browsers, iOS Safari especially, give a date box a built-in minimum width and ignore "fill the column" (`width: 100%`). The date box stayed wider than its column and pushed past the card.
+- It didn't show up when I first tested in desktop Chrome, which shrinks date boxes more readily than a phone does.
+
+**How I found and fixed it** (commit `1f49479`, `style.css` only):
+1. **Reproduced it.** I ran the app locally (`python -m http.server 8765`) with fake data standing in for Supabase, opened it in Chrome at phone widths, and measured where the Date box ended compared with the card's edge.
+2. **Let the date box shrink.** I added a rule for `input[type="date"]`: `appearance: none`, `min-width: 0`, `max-width: 100%` and `display: block`. This turns off the browser's built-in sizing so the box fits its column, and `::-webkit-date-and-time-value { text-align: left }` keeps the date text left-aligned on iOS once that styling is off.
+3. **Tried two equal columns.** I changed the row from "Note fills the space + Date 10.5em" to two equal halves. At 320px wide the date was no longer overflowing, but the date text itself was cut off ("10/31/20…"), and at 375px it only just fitted.
+4. **Stacked on phones instead.** A date box needs about 160px, which is more than half of a narrow card. So the row is now:
+   - **under 440px wide (phones):** Note and Date each on their own full-width line;
+   - **440px and wider:** side by side in two equal columns.
+5. **Checked it.** At 320, 375 and 500px wide the Date box ended inside the card each time (17px in from the edge, the card's padding), and the page had no sideways scroll. The same row is used in the **Edit expense** sheet, so that is fixed too.
+6. **Deployed and confirmed.** I pushed to `main`, GitHub Pages redeployed, and you confirmed it now looks right on your phone. ✅
+
 ## What to do going forward
 - **Change the temporary password** in **Settings → Password** if you haven't already. It was shown in chat, so treat it as used.
 - **Sign in with email and password.** Use the email link only if you forget the password, tap it once, and open it on the same phone and browser.
