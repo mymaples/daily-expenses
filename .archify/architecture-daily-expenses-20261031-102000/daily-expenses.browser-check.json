@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "browser-check",
+  "evidenceKind": "automated-browser",
+  "status": "fail",
+  "visualReview": "not-requested",
+  "provenance": "current",
+  "deliveryReceiptId": "8266a572-3d01-4972-a4fa-2842e76d3b91",
+  "artifact": {
+    "path": "C:\\Users\\tkgoh\\Documents\\Github\\daily-expenses\\.archify\\architecture-daily-expenses-20261031-102000\\daily-expenses.html",
+    "sha256": "673614d4791b64af1fb08538cbdd20ad70af08c70433e0ad598f4e9836d73a4d",
+    "bytes": 843581
+  },
+  "state": {
+    "detail": "read",
+    "motion": "still"
+  },
+  "chrome": {
+    "status": "available",
+    "executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+  },
+  "diagnostics": [
+    {
+      "code": "viewer/browser-check-runtime",
+      "severity": "error",
+      "message": "browser-check could not complete its Chrome inspection.",
+      "subject": {
+        "artifact": "C:\\Users\\tkgoh\\Documents\\Github\\daily-expenses\\.archify\\architecture-daily-expenses-20261031-102000\\daily-expenses.html"
+      },
+      "evidence": {
+        "reason": "The delivered artifact changed while browser-check was running could not be read safely (visual-check-artifact-hardlinked)."
+      },
+      "supportedFixes": [
+        "resolve the reported Chrome inspection error, then rerun browser-check"
+      ]
+    }
+  ],
+  "containment": {
+    "status": "fail",
+    "policy": "fit-or-reader-declared-readable-vertical-scroll",
+    "viewports": []
+  },
+  "themeStates": {
+    "status": "fail",
+    "viewports": []
+  },
+  "readability": {
+    "status": "fail",
+    "minimumProjectedNodeTextPx": 6,
+    "viewports": []
+  },
+  "viewerChrome": {
+    "status": "fail",
+    "viewports": []
+  },
+  "captures": {
+    "status": "not-requested",
+    "screenshots": [],
+    "contactSheet": null
+  },
+  "sidecars": {
+    "receipt": "daily-expenses.browser-check.json",
+    "files": []
+  },
+  "error": "The delivered artifact changed while browser-check was running could not be read safely (visual-check-artifact-hardlinked)."
+}

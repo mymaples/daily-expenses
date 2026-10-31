@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Daily Expenses architecture",
+    "locale": "en",
+    "output": ".archify/architecture-daily-expenses-20261031-102000/daily-expenses.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/mymaples/daily-expenses.git",
+      "provider": "github",
+      "revision": "cee40ccff6a6506612c0798380f00b71a71bf1fe"
+    }
+  },
+  "components": [
+    { "id": "phone-user", "type": "external", "label": "You", "sublabel": "phone / browser", "pos": [40, 200], "size": [140, 64],
+      "sources": [{ "path": "README.md", "line": 38, "end_line": 40, "label": "Add to Home Screen" }, { "path": "manifest.webmanifest", "line": 1, "end_line": 14 }] },
+    { "id": "gh-pages", "type": "cloud", "label": "GitHub Pages", "sublabel": "static files from main /", "pos": [300, 40], "size": [180, 60],
+      "sources": [{ "path": "README.md", "line": 4 }, { "path": "README.md", "line": 38, "end_line": 39 }, { "path": "index.html", "line": 11, "end_line": 14 }] },
+    { "id": "web-app", "type": "frontend", "label": "Web app (PWA)", "sublabel": "app.js · Add / Month / Settings", "pos": [300, 200], "size": [180, 64],
+      "sources": [{ "path": "app.js", "line": 1, "end_line": 7, "label": "Supabase client" }, { "path": "app.js", "line": 127, "end_line": 134, "label": "views" }, { "path": "index.html", "line": 151, "end_line": 153 }] },
+    { "id": "jsdelivr", "type": "cloud", "label": "jsDelivr CDN", "sublabel": "supabase-js 2.45.4", "pos": [300, 370], "size": [180, 60], "tag": "SRI pinned",
+      "sources": [{ "path": "index.html", "line": 151 }] },
+    { "id": "sb-auth", "type": "security", "label": "Supabase Auth", "sublabel": "email link · password", "pos": [660, 110], "size": [180, 64],
+      "sources": [{ "path": "app.js", "line": 356, "end_line": 371, "label": "email link sign-in" }, { "path": "app.js", "line": 449, "end_line": 457, "label": "auth state" }] },
+    { "id": "sb-db", "type": "database", "label": "Supabase Postgres", "sublabel": "expenses · settings", "pos": [660, 300], "size": [180, 64],
+      "sources": [{ "path": "supabase/schema.sql", "line": 3, "end_line": 18, "label": "tables" }, { "path": "supabase/schema.sql", "line": 20, "end_line": 30, "label": "RLS policies" }, { "path": "app.js", "line": 87, "end_line": 124, "label": "queries" }] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Supabase project", "wraps": ["sb-auth", "sb-db"] },
+    { "kind": "security-group", "label": "RLS: own rows only", "wraps": ["sb-db"] }
+  ],
+  "connections": [
+    { "id": "user-uses-app", "from": "phone-user", "to": "web-app", "label": "uses", "variant": "emphasis" },
+    { "id": "pages-serves-app", "from": "gh-pages", "to": "web-app", "label": "HTML / CSS / JS" },
+    { "id": "cdn-serves-lib", "from": "jsdelivr", "to": "web-app", "label": "supabase-js" },
+    { "id": "app-signs-in", "from": "web-app", "to": "sb-auth", "label": "sign in (PKCE)", "variant": "security" },
+    { "id": "app-queries-db", "from": "web-app", "to": "sb-db", "label": "CRUD + JWT", "variant": "emphasis" },
+    { "id": "auth-scopes-db", "from": "sb-auth", "to": "sb-db", "label": "auth.uid()", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Hosting", "items": ["Plain HTML/CSS/JS, no build step, served by GitHub Pages", "Installable via Share → Add to Home Screen"] },
+    { "dot": "rose", "title": "Sign-in", "items": ["Email link with PKCE, sign-ups disabled (shouldCreateUser: false)", "Optional password set in Settings", "Session persisted and auto-refreshed by supabase-js"] },
+    { "dot": "emerald", "title": "Data", "items": ["expenses: amount, category, note, spent_on", "settings: monthly budget, category list", "Row Level Security limits every row to auth.uid()"] },
+    { "dot": "amber", "title": "Extras", "items": ["CSV export pages through expenses 1,000 rows at a time (app.js 401–424)", "Views refresh when the app becomes visible again"] }
+  ]
+}

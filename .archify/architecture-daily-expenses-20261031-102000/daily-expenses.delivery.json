@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "8266a572-3d01-4972-a4fa-2842e76d3b91",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\tkgoh\\Documents\\Github\\daily-expenses\\.archify\\architecture-daily-expenses-20261031-102000\\candidate.json",
+  "output": "C:\\Users\\tkgoh\\Documents\\Github\\daily-expenses\\.archify\\architecture-daily-expenses-20261031-102000\\daily-expenses.html",
+  "specification": {
+    "sha256": "5d3603bbab9b853427cdaf219fd8023f331543578bef4146ba93a0a4b5d465b8",
+    "bytes": 4029
+  },
+  "artifact": {
+    "sha256": "673614d4791b64af1fb08538cbdd20ad70af08c70433e0ad598f4e9836d73a4d",
+    "bytes": 843581
+  }
+}
