@@ -198,6 +198,8 @@ async function refreshMonth() {
     head.append(el("span", null, dayName(d)), el("span", null, money.format(xs.reduce((s, x) => s + x.amount, 0))));
     const ul = el("ul", "entries");
     ul.append(...xs.map(entryRow));
+    // A single entry's amount just repeats the day total above it.
+    if (xs.length === 1) ul.querySelector(".amt").remove();
     box.append(head, ul);
     return box;
   }));
