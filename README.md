@@ -16,6 +16,10 @@ Plain HTML/CSS/JS hosted on GitHub Pages; data is stored in Supabase so it syncs
 The bottom tab bar switches between Add, Month and Settings. The layout is built for phones and centres in a
 560px column on larger screens; it follows the system light/dark setting.
 
+Each category has its own light colour, used on its chips, entry labels, breakdown bar and a dot in Settings.
+Colours follow the category's position in the list (renaming keeps the colour, removing one shifts those below it);
+past entries with a removed category get a colour derived from the label. Dark mode uses darker tints.
+
 ## Setup
 1. Create a Supabase project and run `supabase/schema.sql` in the SQL editor.
 2. Put the Project URL and anon public key into `config.js`.
