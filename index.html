@@ -16,16 +16,13 @@
   <!-- Sign-in -->
   <section id="signin" class="signin" hidden>
     <h1>Daily Expenses</h1>
-    <form id="email-form">
+    <form id="signin-form">
       <label for="email">Email</label>
-      <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
-      <button type="submit" class="btn primary">Send me a code</button>
-    </form>
-    <form id="code-form" hidden>
-      <label for="code">6-digit code from your email</label>
-      <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required>
-      <button type="submit" class="btn primary">Sign in</button>
-      <button type="button" id="code-back" class="btn link">Use a different email</button>
+      <input id="email" type="email" autocomplete="username" required placeholder="you@example.com">
+      <button type="submit" class="btn primary">Email me a sign-in link</button>
+      <label for="password">Password <span class="muted">(if you've set one in Settings)</span></label>
+      <input id="password" type="password" autocomplete="current-password">
+      <button type="button" id="password-signin" class="btn">Sign in with password</button>
     </form>
     <p id="signin-msg" class="muted"></p>
   </section>
@@ -95,6 +92,13 @@
             <button class="btn">Add</button>
           </form>
         </div>
+        <form id="password-form" class="card">
+          <label for="new-password" class="label">Password (sign in on another device without email)</label>
+          <div class="inline">
+            <input id="new-password" type="password" autocomplete="new-password" minlength="6" placeholder="at least 6 characters">
+            <button class="btn primary">Set</button>
+          </div>
+        </form>
         <div class="card">
           <button id="export" class="btn">Download backup (CSV)</button>
           <p class="muted">Signed in as <span id="who"></span></p>

@@ -326,28 +326,38 @@ function wireEvents() {
   $("export").onclick = exportCsv;
   $("signout").onclick = async () => { await db.auth.signOut(); location.reload(); };
 
-  // Sign-in
-  $("email-form").onsubmit = async (e) => {
+  // Sign-in. Free Supabase can't put a code in the email, so the email carries
+  // a link back to this page; supabase-js picks the session up from the URL.
+  $("signin-form").onsubmit = async (e) => {
     e.preventDefault();
     const email = $("email").value.trim();
     $("signin-msg").textContent = "Sending…";
-    const { error } = await db.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-    if (error) { $("signin-msg").textContent = error.message; return; }
-    $("email-form").hidden = true;
-    $("code-form").hidden = false;
-    $("signin-msg").textContent = `Code sent to ${email}. Check your inbox.`;
-    $("code").focus();
+    const { error } = await db.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname },
+    });
+    $("signin-msg").textContent = !error
+      ? `Sign-in link sent to ${email}. Open it on this device, in this browser.`
+      : /signups not allowed/i.test(error.message)
+        ? "No account for this email."
+        : error.message;
   };
-  $("code-form").onsubmit = async (e) => {
-    e.preventDefault();
-    $("signin-msg").textContent = "Checking…";
-    const { error } = await db.auth.verifyOtp({ email: $("email").value.trim(), token: $("code").value.trim(), type: "email" });
+  $("password-signin").onclick = async () => {
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    if (!email || !password) return ($("signin-msg").textContent = "Enter your email and password.");
+    $("signin-msg").textContent = "Signing in…";
+    const { error } = await db.auth.signInWithPassword({ email, password });
     if (error) $("signin-msg").textContent = error.message;
   };
-  $("code-back").onclick = () => {
-    $("code-form").hidden = true;
-    $("email-form").hidden = false;
-    $("signin-msg").textContent = "";
+  $("password-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const password = $("new-password").value;
+    if (password.length < 6) return toast("Use at least 6 characters");
+    const { error } = await db.auth.updateUser({ password });
+    if (error) return showError(error);
+    $("new-password").value = "";
+    toast("Password set");
   };
 
   // Totals may be stale after the phone wakes the app up.
@@ -373,6 +383,7 @@ async function exportCsv() {
 // ---------- boot ----------
 async function onSignedIn(user) {
   state.user = user;
+  if (location.hash) history.replaceState(null, "", location.pathname); // drop sign-in tokens from the URL
   $("signin").hidden = true;
   $("app").hidden = false;
   $("add-date").value = ymd(new Date());
@@ -383,6 +394,12 @@ function onSignedOut() {
   state.user = null;
   $("app").hidden = true;
   $("signin").hidden = false;
+  // An expired or already-used email link comes back as #error_description=...
+  const linkError = new URLSearchParams(location.hash.slice(1)).get("error_description");
+  if (linkError) {
+    $("signin-msg").textContent = `${linkError}. Send a new link.`;
+    history.replaceState(null, "", location.pathname);
+  }
 }
 
 wireEvents();

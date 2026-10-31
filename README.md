@@ -11,9 +11,11 @@ Plain HTML/CSS/JS hosted on GitHub Pages; data is stored in Supabase so it syncs
 ## Setup
 1. Create a Supabase project and run `supabase/schema.sql` in the SQL editor.
 2. Put the Project URL and anon public key into `config.js`.
-3. Supabase → Authentication → Emails: make the "Magic Link" template include `{{ .Token }}` so the email contains the 6-digit code.
-4. Supabase → Authentication → URL Configuration: set Site URL to the GitHub Pages URL.
-5. Sign in once, then turn off "Allow new users to sign up" (Authentication → Sign In / Providers) so nobody else can create an account.
+3. Supabase → Authentication → URL Configuration: set Site URL to the GitHub Pages URL and add it to Redirect URLs.
+4. Sign up once, then turn off "Allow new users to sign up" (Authentication → Sign In / Providers) so nobody else can create an account.
+
+Sign-in uses the email link (free Supabase projects can't customise emails to show a code).
+Set a password in Settings to sign in on other devices, or in an iPhone home-screen app, without email.
 
 ## Run locally
 ```

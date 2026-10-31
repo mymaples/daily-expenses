@@ -183,4 +183,4 @@ input.amount { font-size: 2rem; font-weight: 700; padding: 8px 12px; text-align:
 .signin { max-width: 400px; margin: 0 auto; padding: 18vh 16px 40px; }
 .signin h1 { font-size: 1.8rem; margin-bottom: 24px; }
 .signin form { display: grid; gap: 10px; }
-.signin #code { font-size: 1.6rem; letter-spacing: .3em; text-align: center; }
+.signin label[for="password"] { margin-top: 18px; }
