@@ -2,7 +2,8 @@
 
 const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.APP_CONFIG;
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true },
+  // PKCE: the email link returns a one-time ?code= instead of tokens in the URL.
+  auth: { persistSession: true, autoRefreshToken: true, flowType: "pkce" },
 });
 
 const DEFAULT_CATEGORIES = ["Food", "Transport", "Groceries", "Shopping", "Bills", "Health", "Fun", "Other"];
@@ -336,11 +337,11 @@ function wireEvents() {
       email,
       options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname },
     });
-    $("signin-msg").textContent = !error
-      ? `Sign-in link sent to ${email}. Open it on this device, in this browser.`
-      : /signups not allowed/i.test(error.message)
-        ? "No account for this email."
-        : error.message;
+    // Same message whether or not the account exists, so the page doesn't reveal which emails have one.
+    if (error) console.warn(error);
+    $("signin-msg").textContent = error && /rate limit/i.test(error.message)
+      ? "Too many emails sent. Wait a few minutes and try again."
+      : `If ${email} has an account, a sign-in link is on its way. Open it on this device, in this browser.`;
   };
   $("password-signin").onclick = async () => {
     const email = $("email").value.trim();
@@ -348,7 +349,10 @@ function wireEvents() {
     if (!email || !password) return ($("signin-msg").textContent = "Enter your email and password.");
     $("signin-msg").textContent = "Signing in…";
     const { error } = await db.auth.signInWithPassword({ email, password });
-    if (error) $("signin-msg").textContent = error.message;
+    if (error) {
+      console.warn(error);
+      $("signin-msg").textContent = "Wrong email or password, or no password set yet.";
+    }
   };
   $("password-form").onsubmit = async (e) => {
     e.preventDefault();
@@ -383,7 +387,7 @@ async function exportCsv() {
 // ---------- boot ----------
 async function onSignedIn(user) {
   state.user = user;
-  if (location.hash) history.replaceState(null, "", location.pathname); // drop sign-in tokens from the URL
+  if (location.search || location.hash) history.replaceState(null, "", location.pathname); // drop the sign-in code from the URL
   $("signin").hidden = true;
   $("app").hidden = false;
   $("add-date").value = ymd(new Date());
@@ -394,10 +398,11 @@ function onSignedOut() {
   state.user = null;
   $("app").hidden = true;
   $("signin").hidden = false;
-  // An expired or already-used email link comes back as #error_description=...
-  const linkError = new URLSearchParams(location.hash.slice(1)).get("error_description");
-  if (linkError) {
-    $("signin-msg").textContent = `${linkError}. Send a new link.`;
+  // An expired or already-used email link comes back with ?error=... or #error=...
+  // Show a fixed message rather than echoing URL text, which anyone can craft.
+  const params = new URLSearchParams(location.search + "&" + location.hash.slice(1));
+  if (params.get("error") || params.get("code")) {
+    $("signin-msg").textContent = "That sign-in link has expired or was opened in a different browser. Send a new link.";
     history.replaceState(null, "", location.pathname);
   }
 }
