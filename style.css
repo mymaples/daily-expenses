@@ -9,6 +9,8 @@
   --warn: #c27c0e;
   --danger: #c0392b;
   --radius: 14px;
+  /* Per-category tint; --h (hue) is set inline from app.js */
+  --cat-s: 75%; --cat-bg-l: 92%; --cat-fg-l: 28%; --cat-solid-l: 42%;
   color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -22,6 +24,7 @@
     --accent-soft: #163a36;
     --warn: #f0b03c;
     --danger: #f06a5b;
+    --cat-s: 45%; --cat-bg-l: 22%; --cat-fg-l: 80%; --cat-solid-l: 62%;
   }
 }
 
@@ -97,6 +100,9 @@ input.amount { font-size: 2rem; font-weight: 700; padding: 8px 12px; text-align:
   min-height: 42px;
 }
 .chip.selected { background: var(--accent); border-color: var(--accent); color: var(--card); font-weight: 600; }
+.tinted { --cat-bg: hsl(var(--h) var(--cat-s) var(--cat-bg-l)); --cat-fg: hsl(var(--h) var(--cat-s) var(--cat-fg-l)); --cat-solid: hsl(var(--h) var(--cat-s) var(--cat-solid-l)); }
+.chip.tinted { background: var(--cat-bg); border-color: transparent; color: var(--cat-fg); }
+.chip.tinted.selected { background: var(--cat-solid); border-color: var(--cat-solid); color: var(--card); }
 
 .btn {
   font: inherit;
@@ -117,7 +123,8 @@ input.amount { font-size: 2rem; font-weight: 700; padding: 8px 12px; text-align:
 .btn:disabled { opacity: .35; cursor: default; }
 .btn:focus-visible, .chip:focus-visible, .tabs button:focus-visible, .entry:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (hover: hover) {
-  .chip:hover:not(.selected), .btn:hover:not(:disabled, .primary, .icon) { border-color: var(--accent); }
+  .chip:hover:not(.selected) { border-color: var(--cat-solid, var(--accent)); }
+  .btn:hover:not(:disabled, .primary, .icon) { border-color: var(--accent); }
   .btn.icon:hover:not(:disabled), .entry:hover { background: var(--accent-soft); }
 }
 .chip { cursor: pointer; }
@@ -132,7 +139,7 @@ input.amount { font-size: 2rem; font-weight: 700; padding: 8px 12px; text-align:
   border-bottom: 1px solid var(--line);
   cursor: pointer;
 }
-.entry .cat { font-size: .8rem; background: var(--accent-soft); color: var(--accent); border-radius: 6px; padding: 2px 8px; white-space: nowrap; max-width: 40%; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.entry .cat { font-size: .8rem; background: var(--cat-bg, var(--accent-soft)); color: var(--cat-fg, var(--accent)); border-radius: 6px; padding: 2px 8px; white-space: nowrap; max-width: 40%; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
 .entry .amt { white-space: nowrap; }
 .entry { border-radius: 8px; }
 .entry .note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
@@ -153,7 +160,7 @@ input.amount { font-size: 2rem; font-weight: 700; padding: 8px 12px; text-align:
 .cat-bars .row:last-child { margin-bottom: 0; }
 .cat-bars .track { grid-column: 1 / -1; grid-row: 2; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
 .cat-bars .empty { margin: 0; padding: 0; }
-.cat-bars .fill { height: 100%; background: var(--accent); }
+.cat-bars .fill { height: 100%; background: var(--cat-solid, var(--accent)); }
 .cat-bars .val { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--muted); }
 .cat-bars .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -165,6 +172,7 @@ input.amount { font-size: 2rem; font-weight: 700; padding: 8px 12px; text-align:
 .cat-list li { display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--line); padding: 4px 0; }
 .cat-list li span { flex: 1; }
 .cat-list li span { min-width: 0; overflow-wrap: anywhere; }
+.cat-list .cat-name::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; vertical-align: -1px; background: var(--cat-solid); }
 .cat-list .btn { min-height: 38px; padding: 6px 10px; font-size: .9rem; font-weight: 500; border: 0; background: none; color: var(--accent); }
 .cat-list .btn.danger { color: var(--danger); }
 

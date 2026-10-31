@@ -60,9 +60,18 @@ function el(tag, cls, text) {
   if (text != null) e.textContent = text;
   return e;
 }
+// Each category gets its own hue: spread by list position, or hashed for labels no longer in the list.
+function catHue(c) {
+  const i = state.settings.categories.indexOf(c);
+  if (i >= 0) return Math.round((i * 137.5 + 170) % 360);
+  let h = 0;
+  for (const ch of c) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return h;
+}
+function tint(e, c) { e.style.setProperty("--h", catHue(c)); e.classList.add("tinted"); return e; }
 function renderChips(container, selected, onPick, list = state.settings.categories) {
   container.replaceChildren(...list.map((c) => {
-    const b = el("button", "chip" + (c === selected ? " selected" : ""), c);
+    const b = tint(el("button", "chip" + (c === selected ? " selected" : ""), c), c);
     b.type = "button";
     b.onclick = () => onPick(c);
     return b;
@@ -70,7 +79,7 @@ function renderChips(container, selected, onPick, list = state.settings.categori
 }
 function entryRow(x) {
   const li = el("li", "entry");
-  li.append(el("span", "cat", x.category), el("span", "note", x.note || ""), el("span", "amt", money.format(x.amount)));
+  li.append(tint(el("span", "cat", x.category), x.category), el("span", "note", x.note || ""), el("span", "amt", money.format(x.amount)));
   li.onclick = () => openEdit(x);
   return li;
 }
@@ -174,7 +183,7 @@ async function refreshMonth() {
   $("m-cats").replaceChildren(...(cats.length ? cats.map(([c, v]) => {
     const row = el("div", "row");
     const track = el("div", "track");
-    const fill = el("div", "fill");
+    const fill = tint(el("div", "fill"), c);
     fill.style.width = (v / max * 100) + "%";
     track.append(fill);
     row.append(el("span", "name", c), track, el("span", "val", `${money.format(v)} · ${pctLabel(v / total * 100)}`));
@@ -225,7 +234,7 @@ function renderSettings() {
         renderSettings();
       } catch (e) { showError(e); }
     };
-    li.append(el("span", null, c), rename, remove);
+    li.append(tint(el("span", "cat-name", c), c), rename, remove);
     return li;
   }));
 }
