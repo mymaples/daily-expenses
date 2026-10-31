@@ -15,6 +15,7 @@ const state = {
   settings: { monthly_budget: null, categories: DEFAULT_CATEGORIES },
   viewMonth: firstOfMonth(new Date()),
   addCategory: null,
+  addDateDefault: null, // the "today" the Add form's date was last reset to
   editing: null, // expense row being edited
   editCategory: null,
 };
@@ -58,8 +59,8 @@ function el(tag, cls, text) {
   if (text != null) e.textContent = text;
   return e;
 }
-function renderChips(container, selected, onPick) {
-  container.replaceChildren(...state.settings.categories.map((c) => {
+function renderChips(container, selected, onPick, list = state.settings.categories) {
+  container.replaceChildren(...list.map((c) => {
     const b = el("button", "chip" + (c === selected ? " selected" : ""), c);
     b.type = "button";
     b.onclick = () => onPick(c);
@@ -206,10 +207,11 @@ function renderSettings() {
       const next = [...state.settings.categories];
       next[i] = name;
       try {
-        await saveSettings({ categories: next });
-        // Keep past entries under the new name.
+        // Relabel past entries first: if this fails, the list still has the old name.
         const { error } = await db.from("expenses").update({ category: name }).eq("category", c);
         if (error) throw error;
+        await saveSettings({ categories: next });
+        if (state.addCategory === c) state.addCategory = name;
         renderSettings();
       } catch (e) { showError(e); }
     };
@@ -218,6 +220,7 @@ function renderSettings() {
       if (!confirm(`Remove "${c}"? Past entries keep this label.`)) return;
       try {
         await saveSettings({ categories: state.settings.categories.filter((x) => x !== c) });
+        if (state.addCategory === c) state.addCategory = null;
         renderSettings();
       } catch (e) { showError(e); }
     };
@@ -233,17 +236,18 @@ function openEdit(x) {
   $("edit-amount").value = x.amount.toFixed(2);
   $("edit-note").value = x.note || "";
   $("edit-date").value = x.spent_on;
-  const pick = (c) => { state.editCategory = c; renderChips($("edit-cats"), c, pick); };
-  renderChips($("edit-cats"), x.category, pick);
-  // A renamed/removed category still shows so the entry isn't silently changed.
-  if (!state.settings.categories.includes(x.category)) {
-    const b = el("button", "chip selected", x.category);
-    b.type = "button";
-    $("edit-cats").prepend(b);
-  }
+  // A renamed/removed category still shows, and stays pickable, so the entry isn't silently changed.
+  const cats = state.settings.categories;
+  const list = cats.includes(x.category) ? cats : [x.category, ...cats];
+  const pick = (c) => { state.editCategory = c; renderChips($("edit-cats"), c, pick, list); };
+  renderChips($("edit-cats"), x.category, pick, list);
   $("sheet").hidden = false;
 }
 function closeEdit() { $("sheet").hidden = true; state.editing = null; }
+function resetAddDate() {
+  state.addDateDefault = ymd(new Date());
+  $("add-date").value = state.addDateDefault;
+}
 function refreshCurrent() {
   if (!$("view-month").hidden) refreshMonth(); else refreshAdd();
 }
@@ -268,7 +272,7 @@ function wireEvents() {
       toast(`Saved ${money.format(amount)} · ${state.addCategory}`);
       $("add-amount").value = "";
       $("add-note").value = "";
-      $("add-date").value = ymd(new Date());
+      resetAddDate();
       state.addCategory = null;
       refreshAdd();
     } catch (err) { showError(err); }
@@ -284,6 +288,7 @@ function wireEvents() {
     e.preventDefault();
     const amount = parseAmount($("edit-amount").value);
     if (!amount) return toast("Enter an amount");
+    const btn = e.submitter; btn.disabled = true;
     try {
       await updateExpense(state.editing.id, {
         amount,
@@ -295,6 +300,7 @@ function wireEvents() {
       toast("Updated");
       refreshCurrent();
     } catch (err) { showError(err); }
+    finally { btn.disabled = false; }
   };
   $("edit-delete").onclick = async () => {
     if (!confirm("Delete this expense?")) return;
@@ -364,23 +370,36 @@ function wireEvents() {
     toast("Password set");
   };
 
-  // Totals may be stale after the phone wakes the app up.
+  // Totals, and the Add form's date, may be stale after the phone wakes the app up.
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && state.user) refreshCurrent();
+    if (document.visibilityState !== "visible" || !state.user) return;
+    if ($("add-date").value === state.addDateDefault) resetAddDate(); // leave a hand-picked date alone
+    refreshCurrent();
   });
 }
 
 async function exportCsv() {
   try {
-    const { data, error } = await db.from("expenses").select("spent_on,category,amount,note").order("spent_on");
-    if (error) throw error;
+    // Supabase caps each response at 1,000 rows, so fetch in pages.
+    const PAGE = 1000;
+    const data = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data: page, error } = await db.from("expenses")
+        .select("spent_on,category,amount,note")
+        .order("spent_on").order("created_at").order("id")
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      data.push(...page);
+      if (page.length < PAGE) break;
+    }
     const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const csv = ["date,category,amount,note", ...data.map((x) => [x.spent_on, x.category, x.amount, x.note].map(esc).join(","))].join("\n");
     const a = el("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     a.download = `expenses-${ymd(new Date())}.csv`;
     a.click();
-    URL.revokeObjectURL(a.href);
+    // Revoking straight away can cancel the download in iOS Safari.
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   } catch (e) { showError(e); }
 }
 
@@ -390,7 +409,7 @@ async function onSignedIn(user) {
   if (location.search || location.hash) history.replaceState(null, "", location.pathname); // drop the sign-in code from the URL
   $("signin").hidden = true;
   $("app").hidden = false;
-  $("add-date").value = ymd(new Date());
+  resetAddDate();
   try { state.settings = await getSettings(); } catch (e) { showError(e); }
   showView("add");
 }
