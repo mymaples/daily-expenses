@@ -74,7 +74,12 @@ input {
 input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
 .label { display: block; font-size: .85rem; color: var(--muted); margin: 14px 0 6px; }
 .card > .label:first-child { margin-top: 0; }
-.field-row { display: grid; grid-template-columns: 1fr 10.5em; gap: 10px; }
+/* Phones stack Note and Date: a date input needs ~160px, more than half a narrow card. */
+.field-row { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 10px; }
+@media (min-width: 440px) { .field-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+/* iOS gives date inputs an intrinsic min-width that ignores width: 100%, so they overflow narrow columns. */
+input[type="date"] { -webkit-appearance: none; appearance: none; min-width: 0; max-width: 100%; display: block; }
+input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
 .field-row > div { min-width: 0; }
 
 .amount-row { display: flex; align-items: center; gap: 8px; }
